@@ -33,11 +33,7 @@ module('Integration | Component | modifier-manager', function(hooks) {
   }
 
   test('it basically works', async function(assert) {
-    Ember._setModifierManager(
-      owner => new ModifierManager(owner),
-      class DidInsertModifier {
-      }
-    );
+    Ember._setModifierManager(owner => new ModifierManager(owner), class DidInsertModifier {});
     this.owner.register('modifier-manager:did-insert');
 
     await render(hbs`<div {{did-insert}}></div>`);
