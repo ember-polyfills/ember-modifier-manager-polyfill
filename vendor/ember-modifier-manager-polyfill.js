@@ -1,7 +1,7 @@
 /* globals Ember */
 /* eslint-disable ember/new-module-imports */
 
-import { gte } from 'ember-compatibility-helpers';
+import { lte, gte } from 'ember-compatibility-helpers';
 
 (() => {
   'use strict';
@@ -56,79 +56,76 @@ import { gte } from 'ember-compatibility-helpers';
           let compileTimeLookup = compiler.resolver;
           let runtimeResolver = compileTimeLookup.resolver;
 
-          let CustomModifierDefinition;
-          if (gte('3.6.0-alpha.1')) {
-            class CustomModifierState {
-              constructor(element, delegate, modifier, args) {
-                this.element = element;
-                this.delegate = delegate;
-                this.modifier = modifier;
-                this.args = args;
-              }
-
-              destroy() {
-                const { delegate, modifier, args } = this;
-                let modifierArgs = valueForCapturedArgs(args);
-                delegate.destroyModifier(modifier, modifierArgs);
-              }
+          class CustomModifierState {
+            constructor(element, delegate, modifier, args) {
+              this.element = element;
+              this.delegate = delegate;
+              this.modifier = modifier;
+              this.args = args;
             }
 
-            class Polyfilled_CustomModifierManager {
-              //create(element: Simple.Element, state: ModifierDefinitionState, args: IArguments, dynamicScope: DynamicScope, dom: DOMChanges): ModifierInstanceState;
-              create(element, definition, args) {
-                const capturedArgs = args.capture();
-                let modifierArgs = valueForCapturedArgs(capturedArgs);
-                let instance = definition.delegate.createModifier(
-                  definition.ModifierClass,
-                  modifierArgs
-                );
+            destroy() {
+              const { delegate, modifier, args } = this;
+              let modifierArgs = valueForCapturedArgs(args);
+              delegate.destroyModifier(modifier, modifierArgs);
+            }
+          }
 
-                return new CustomModifierState(
-                  element,
-                  definition.delegate,
-                  instance,
-                  capturedArgs
-                );
-              }
+          class Polyfilled_CustomModifierManager {
+            //create(element: Simple.Element, state: ModifierDefinitionState, args: IArguments, dynamicScope: DynamicScope, dom: DOMChanges): ModifierInstanceState;
+            create(element, definition, args) {
+              const capturedArgs = args.capture();
+              let modifierArgs = valueForCapturedArgs(capturedArgs);
+              let instance = definition.delegate.createModifier(
+                definition.ModifierClass,
+                modifierArgs
+              );
 
-              //getTag(modifier: ModifierInstanceState): Tag;
-              getTag({ args }) {
-                return args.tag;
-              }
-
-              //install(modifier: ModifierInstanceState): void;
-              install(state) {
-                let { element, args, delegate, modifier } = state;
-                let modifierArgs = valueForCapturedArgs(args);
-                delegate.installModifier(modifier, element, modifierArgs);
-              }
-
-              //update(modifier: ModifierInstanceState): void;
-              update(state) {
-                let { args, delegate, modifier } = state;
-                let modifierArgs = valueForCapturedArgs(args);
-                delegate.updateModifier(modifier, modifierArgs);
-              }
-
-              //getDestructor(modifier: ModifierInstanceState): Option<Destroyable>;
-              getDestructor(state) {
-                return state;
-              }
+              return new CustomModifierState(element, definition.delegate, instance, capturedArgs);
             }
 
-            CustomModifierDefinition = class Polyfilled_CustomModifierDefinition {
-              constructor(name, ModifierClass, delegate) {
-                this.name = name;
-                this.state = {
-                  ModifierClass,
-                  name,
-                  delegate,
-                };
-                this.manager = new Polyfilled_CustomModifierManager();
-              }
+            //getTag(modifier: ModifierInstanceState): Tag;
+            getTag({ args }) {
+              return args.tag;
+            }
+
+            //install(modifier: ModifierInstanceState): void;
+            install(state) {
+              let { element, args, delegate, modifier } = state;
+              let modifierArgs = valueForCapturedArgs(args);
+              delegate.installModifier(modifier, element, modifierArgs);
+            }
+
+            //update(modifier: ModifierInstanceState): void;
+            update(state) {
+              let { args, delegate, modifier } = state;
+              let modifierArgs = valueForCapturedArgs(args);
+              delegate.updateModifier(modifier, modifierArgs);
+            }
+
+            //getDestructor(modifier: ModifierInstanceState): Option<Destroyable>;
+            getDestructor(state) {
+              return state;
+            }
+          }
+
+          class Polyfilled_CustomModifierDefinition {
+            constructor(name, ModifierClass, delegate) {
+              this.name = name;
+              this.state = {
+                ModifierClass,
+                name,
+                delegate,
+              };
+              this.manager = new Polyfilled_CustomModifierManager();
+            }
+          }
+
+          // meta was not passed to `_lookupModifier` until 3.7
+          if (lte('3.7.0-alpha.1')) {
+            runtimeResolver.lookupModifier = function(name, meta) {
+              return this.handle(this._lookupModifier(name, meta));
             };
-          } else {
-            // TODO: rwjblue implement 3.1 - 3.5
           }
 
           runtimeResolver._lookupModifier = function(name, meta) {
@@ -141,7 +138,27 @@ import { gte } from 'ember-compatibility-helpers';
                 let managerFactory = getModifierManager(modifier.class);
                 let manager = managerFactory(owner);
 
-                return new CustomModifierDefinition(name, modifier.class, manager);
+                if (gte('3.6.0-alpha.1')) {
+                  return new Polyfilled_CustomModifierDefinition(name, modifier.class, manager);
+                } else {
+                  class Polyfilled_CustomModifierManagerLt36 extends Polyfilled_CustomModifierManager {
+                    constructor(name, ModifierClass, manager) {
+                      super();
+
+                      this.state = {
+                        ModifierClass,
+                        delegate: manager,
+                      };
+                    }
+
+                    // create(element: Simple.Element, args: Arguments, _dynamicScope: DynamicScope, dom: any) {
+                    create(element, args) {
+                      return super.create(element, this.state, args);
+                    }
+                  }
+
+                  return new Polyfilled_CustomModifierManagerLt36(name, modifier.class, manager);
+                }
               }
             }
 
