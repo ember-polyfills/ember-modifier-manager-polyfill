@@ -32,6 +32,30 @@ module.exports = function() {
           },
         },
         {
+          name: 'ember-3.5',
+          npm: {
+            devDependencies: {
+              'ember-source': '~3.5.0',
+            },
+          },
+        },
+        {
+          name: 'ember-3.6',
+          npm: {
+            devDependencies: {
+              'ember-source': '~3.6.0',
+            },
+          },
+        },
+        {
+          name: 'ember-3.7',
+          npm: {
+            devDependencies: {
+              'ember-source': '~3.7.0',
+            },
+          },
+        },
+        {
           name: 'ember-release',
           npm: {
             devDependencies: {
