@@ -55,8 +55,9 @@ import { lte, gte } from 'ember-compatibility-helpers';
       class Polyfilled_CustomModifierManager {
         //create(element: Simple.Element, state: ModifierDefinitionState, args: IArguments, dynamicScope: DynamicScope, dom: DOMChanges): ModifierInstanceState;
         create(element, definition, args) {
-          const capturedArgs = args.capture();
+          let capturedArgs = gte('2.15.0-alpha.1') ? args.capture() : args;
           let modifierArgs = valueForCapturedArgs(capturedArgs);
+
           let instance = definition.delegate.createModifier(definition.ModifierClass, modifierArgs);
 
           return new CustomModifierState(element, definition.delegate, instance, capturedArgs);
@@ -183,17 +184,21 @@ import { lte, gte } from 'ember-compatibility-helpers';
         Environment.create = function Polyfilled_EnvironmentCreate() {
           let environment = ORIGINAL_ENVIRONMENT_CREATE.apply(this, arguments);
 
-          environment.hasModifier = function(name, meta) {
-            let { owner } = meta;
+          environment.hasModifier = function(name, metaOrSymbolTable) {
+            let owner = gte('2.15.0-alpha.1')
+              ? metaOrSymbolTable.owner
+              : metaOrSymbolTable.getMeta().owner;
 
             return !!this.builtInModifiers[name] || !!owner.hasRegistration(`modifier:${name}`);
           };
 
-          environment.lookupModifier = function(name, meta) {
+          environment.lookupModifier = function(name, metaOrSymbolTable) {
             let modifier = this.builtInModifiers[name];
 
             if (!modifier) {
-              let { owner } = meta;
+              let owner = gte('2.15.0-alpha.1')
+                ? metaOrSymbolTable.owner
+                : metaOrSymbolTable.getMeta().owner;
               let modifier = owner[factoryForMethodName](`modifier:${name}`);
               if (modifier !== undefined) {
                 let managerFactory = getModifierManager(modifier.class);
