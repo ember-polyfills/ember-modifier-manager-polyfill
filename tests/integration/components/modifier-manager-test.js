@@ -3,9 +3,20 @@ import { setupRenderingTest } from 'ember-qunit';
 import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import Ember from 'ember';
+import { assign } from '@ember/polyfills';
 
 module('Integration | Component | modifier-manager', function(hooks) {
   setupRenderingTest(hooks);
+
+  hooks.beforeEach(function(assert) {
+    assert.namedEquals = function(actual, expected, message) {
+      // this is needed because older versions of Ember pass an `EmptyObject`
+      // based object and QUnit fails due to the prototypes not matching
+      let sanitizedActual = assign({}, actual);
+
+      assert.deepEqual(sanitizedActual, expected, message);
+    };
+  });
 
   module('installModifier', function(hooks) {
     hooks.beforeEach(function() {
@@ -48,7 +59,7 @@ module('Integration | Component | modifier-manager', function(hooks) {
         assert.equal(element.tagName, 'DIV', 'correct element tagName');
         assert.dom(element).hasAttribute('data-foo', 'some-thing');
 
-        assert.deepEqual(named, { some: 'hash-value' }, 'named args match');
+        assert.namedEquals(named, { some: 'hash-value' }, 'named args match');
         assert.deepEqual(positional, ['some-positional-value'], 'positional args match');
       };
 
@@ -64,7 +75,7 @@ module('Integration | Component | modifier-manager', function(hooks) {
         assert.equal(element.tagName, 'DIV', 'correct element tagName');
         assert.dom(element).hasAttribute('data-foo', 'some-thing');
 
-        assert.deepEqual(named, {}, 'named args match');
+        assert.namedEquals(named, {}, 'named args match');
         assert.deepEqual(positional, ['initial'], 'positional args match');
       };
 
@@ -109,7 +120,7 @@ module('Integration | Component | modifier-manager', function(hooks) {
         assert.equal(element.tagName, 'DIV', 'correct element tagName');
         assert.dom(element).hasAttribute('data-foo', 'some-thing');
 
-        assert.deepEqual(named, {}, 'named args match');
+        assert.namedEquals(named, {}, 'named args match');
         assert.deepEqual(positional, ['update'], 'positional args match');
       };
 
@@ -174,7 +185,7 @@ module('Integration | Component | modifier-manager', function(hooks) {
         assert.equal(element.tagName, 'DIV', 'correct element tagName');
         assert.dom(element).hasAttribute('data-foo', 'some-thing');
 
-        assert.deepEqual(named, { some: 'hash-value' }, 'named args match');
+        assert.namedEquals(named, { some: 'hash-value' }, 'named args match');
         assert.deepEqual(positional, ['some-positional-value'], 'positional args match');
       };
 
