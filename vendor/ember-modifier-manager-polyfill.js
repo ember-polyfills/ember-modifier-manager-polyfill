@@ -9,7 +9,7 @@ import { lte, gte } from 'ember-compatibility-helpers';
   const getPrototypeOf = Object.getPrototypeOf;
   const { Application } = Ember;
   let MODIFIER_MANAGERS = new WeakMap();
-  Ember._setModifierManager = function Polyfilled_setModifierManager(modifier, managerFactory) {
+  Ember._setModifierManager = function Polyfilled_setModifierManager(managerFactory, modifier) {
     MODIFIER_MANAGERS.set(modifier, managerFactory);
   };
 

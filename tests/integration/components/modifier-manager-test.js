@@ -11,20 +11,23 @@ module('Integration | Component | modifier-manager', function(hooks) {
     hooks.beforeEach(function() {
       class DidInsertModifier {}
 
-      Ember._setModifierManager(DidInsertModifier, () => ({
-        createModifier(_factory, args) {
-          return args.positional[0];
-        },
+      Ember._setModifierManager(
+        () => ({
+          createModifier(_factory, args) {
+            return args.positional[0];
+          },
 
-        installModifier(_state, element, args) {
-          let [fn, ...positional] = args.positional;
+          installModifier(_state, element, args) {
+            let [fn, ...positional] = args.positional;
 
-          fn(element, positional, args.named);
-        },
+            fn(element, positional, args.named);
+          },
 
-        updateModifier() {},
-        destroyModifier() {},
-      }));
+          updateModifier() {},
+          destroyModifier() {},
+        }),
+        DidInsertModifier
+      );
       this.owner.register('modifier:did-insert', DidInsertModifier);
     });
 
@@ -77,22 +80,25 @@ module('Integration | Component | modifier-manager', function(hooks) {
     hooks.beforeEach(function() {
       class DidUpdateModifier {}
 
-      Ember._setModifierManager(DidUpdateModifier, () => ({
-        createModifier() {
-          return {};
-        },
-        installModifier(state, element) {
-          state.element = element;
-        },
+      Ember._setModifierManager(
+        () => ({
+          createModifier() {
+            return {};
+          },
+          installModifier(state, element) {
+            state.element = element;
+          },
 
-        updateModifier({ element }, args) {
-          let [fn, ...positional] = args.positional;
+          updateModifier({ element }, args) {
+            let [fn, ...positional] = args.positional;
 
-          fn(element, positional, args.named);
-        },
+            fn(element, positional, args.named);
+          },
 
-        destroyModifier() {},
-      }));
+          destroyModifier() {},
+        }),
+        DidUpdateModifier
+      );
       this.owner.register('modifier:did-update', DidUpdateModifier);
     });
 
@@ -120,23 +126,26 @@ module('Integration | Component | modifier-manager', function(hooks) {
     hooks.beforeEach(function() {
       class WillDestroyModifier {}
 
-      Ember._setModifierManager(WillDestroyModifier, () => ({
-        createModifier() {
-          return {};
-        },
+      Ember._setModifierManager(
+        () => ({
+          createModifier() {
+            return {};
+          },
 
-        installModifier(state, element) {
-          state.element = element;
-        },
+          installModifier(state, element) {
+            state.element = element;
+          },
 
-        updateModifier() {},
+          updateModifier() {},
 
-        destroyModifier({ element }, args) {
-          let [fn, ...positional] = args.positional;
+          destroyModifier({ element }, args) {
+            let [fn, ...positional] = args.positional;
 
-          fn(element, positional, args.named);
-        },
-      }));
+            fn(element, positional, args.named);
+          },
+        }),
+        WillDestroyModifier
+      );
 
       this.owner.register('modifier:will-destroy', WillDestroyModifier);
     });
