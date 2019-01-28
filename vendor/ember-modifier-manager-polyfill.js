@@ -11,6 +11,7 @@ import { lte, gte } from 'ember-compatibility-helpers';
   let MODIFIER_MANAGERS = new WeakMap();
   Ember._setModifierManager = function Polyfilled_setModifierManager(managerFactory, modifier) {
     MODIFIER_MANAGERS.set(modifier, managerFactory);
+    return modifier;
   };
 
   let getModifierManager = obj => {

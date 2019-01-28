@@ -18,6 +18,15 @@ module('Integration | Component | modifier-manager', function(hooks) {
     };
   });
 
+  module('setModifierManager', function() {
+    test('it returns the provided object', function(assert) {
+      let expected = Object.freeze({});
+      let actual = Ember._setModifierManager(() => {}, expected);
+
+      assert.strictEqual(actual, expected, 'the passed in object was returned');
+    });
+  });
+
   module('installModifier', function(hooks) {
     hooks.beforeEach(function() {
       class DidInsertModifier {}
