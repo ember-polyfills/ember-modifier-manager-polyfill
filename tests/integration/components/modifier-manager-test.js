@@ -27,6 +27,30 @@ module('Integration | Component | modifier-manager', function(hooks) {
     });
   });
 
+  module('createModifier', function() {
+    test('it passes the `factoryFor` definition', async function(assert) {
+      assert.expect(1);
+
+      class MyModifier {}
+
+      this.owner.register('modifier:my-modifier', MyModifier);
+
+      Ember._setModifierManager(
+        () => ({
+          createModifier(factory) {
+            assert.equal(factory.class, MyModifier, 'the factory class is Modifier');
+          },
+          installModifier() {},
+          updateModifier() {},
+          destroyModifier() {},
+        }),
+        MyModifier
+      );
+
+      await render(hbs`<div {{my-modifier}}></div>`);
+    });
+  });
+
   module('installModifier', function(hooks) {
     hooks.beforeEach(function() {
       class DidInsertModifier {}
