@@ -157,9 +157,9 @@ import { lte, gte } from 'ember-compatibility-helpers';
                 let manager = managerFactory(owner);
 
                 if (gte('3.6.0-alpha.1')) {
-                  return new Polyfilled_CustomModifierDefinition(name, modifier.class, manager);
+                  return new Polyfilled_CustomModifierDefinition(name, modifier, manager);
                 } else {
-                  return new Polyfilled_CustomModifierManagerLt36(name, modifier.class, manager);
+                  return new Polyfilled_CustomModifierManagerLt36(name, modifier, manager);
                 }
               }
             }
@@ -205,7 +205,7 @@ import { lte, gte } from 'ember-compatibility-helpers';
                 let managerFactory = getModifierManager(modifier.class);
                 let manager = managerFactory(owner);
 
-                return new Polyfilled_CustomModifierManagerLt36(name, modifier.class, manager);
+                return new Polyfilled_CustomModifierManagerLt36(name, modifier, manager);
               }
             }
 
