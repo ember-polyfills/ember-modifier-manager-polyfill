@@ -2,8 +2,8 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import Ember from 'ember';
 import { assign } from '@ember/polyfills';
+import { capabilities, setModifierManager } from '@ember/modifier';
 
 module('Integration | Component | modifier-manager', function(hooks) {
   setupRenderingTest(hooks);
@@ -18,10 +18,34 @@ module('Integration | Component | modifier-manager', function(hooks) {
     };
   });
 
+  module('capabilities', function() {
+    test('can set capabilities', async function(assert) {
+      class MyModifier {}
+
+      this.owner.register('modifier:my-modifier', MyModifier);
+
+      setModifierManager(
+        () => ({
+          capabilities: capabilities('3.13'),
+
+          createModifier(factory) {
+            assert.equal(factory.class, MyModifier, 'the factory class is Modifier');
+          },
+          installModifier() {},
+          updateModifier() {},
+          destroyModifier() {},
+        }),
+        MyModifier
+      );
+
+      await render(hbs`<div {{my-modifier}}></div>`);
+    });
+  });
+
   module('setModifierManager', function() {
     test('it returns the provided object', function(assert) {
       let expected = Object.freeze({});
-      let actual = Ember._setModifierManager(() => {}, expected);
+      let actual = setModifierManager(() => {}, expected);
 
       assert.strictEqual(actual, expected, 'the passed in object was returned');
     });
@@ -35,8 +59,9 @@ module('Integration | Component | modifier-manager', function(hooks) {
 
       this.owner.register('modifier:my-modifier', MyModifier);
 
-      Ember._setModifierManager(
+      setModifierManager(
         () => ({
+          capabilities: capabilities('3.13'),
           createModifier(factory) {
             assert.equal(factory.class, MyModifier, 'the factory class is Modifier');
           },
@@ -55,8 +80,9 @@ module('Integration | Component | modifier-manager', function(hooks) {
     hooks.beforeEach(function() {
       class DidInsertModifier {}
 
-      Ember._setModifierManager(
+      setModifierManager(
         () => ({
+          capabilities: capabilities('3.13'),
           createModifier(_factory, args) {
             return args.positional[0];
           },
@@ -124,8 +150,9 @@ module('Integration | Component | modifier-manager', function(hooks) {
     hooks.beforeEach(function() {
       class DidUpdateModifier {}
 
-      Ember._setModifierManager(
+      setModifierManager(
         () => ({
+          capabilities: capabilities('3.13'),
           createModifier() {
             return {};
           },
@@ -170,8 +197,9 @@ module('Integration | Component | modifier-manager', function(hooks) {
     hooks.beforeEach(function() {
       class WillDestroyModifier {}
 
-      Ember._setModifierManager(
+      setModifierManager(
         () => ({
+          capabilities: capabilities('3.13'),
           createModifier() {
             return {};
           },

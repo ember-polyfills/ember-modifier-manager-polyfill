@@ -2,6 +2,7 @@
 /* eslint-disable ember/new-module-imports */
 
 import { lte, gte } from 'ember-compatibility-helpers';
+import { deprecate } from '@ember/debug';
 
 (() => {
   'use strict';
@@ -60,6 +61,19 @@ import { lte, gte } from 'ember-compatibility-helpers';
           let modifierArgs = valueForCapturedArgs(capturedArgs);
 
           let instance = definition.delegate.createModifier(definition.ModifierClass, modifierArgs);
+
+          if (definition.delegate.capabilities === undefined) {
+            definition.delegate.capabilities = Ember._modifierManagerCapabilities('3.13');
+
+            deprecate(
+              'Custom modifier managers must define their capabilities using the capabilities() helper function',
+              false,
+              {
+                until: '3.17.0',
+                id: 'implicit-modifier-manager-capabilities',
+              }
+            );
+          }
 
           return new CustomModifierState(element, definition.delegate, instance, capturedArgs);
         }

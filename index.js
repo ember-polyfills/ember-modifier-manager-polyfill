@@ -11,21 +11,24 @@ module.exports = {
     let checker = new VersionChecker(this.project);
     let emberVersion = checker.forEmber();
 
-    this.shouldPolyfill = emberVersion.lt('3.8.0-alpha.1');
+    this.shouldPolyfillManager = emberVersion.lt('3.8.0-alpha.1');
+    this.shouldPolyfillCapabilities = emberVersion.lt('3.13.0-beta.3');
   },
 
   included() {
     this._super.included.apply(this, arguments);
 
-    if (!this.shouldPolyfill) {
-      return;
+    if (this.shouldPolyfillManager) {
+      this.import('vendor/ember-modifier-manager-polyfill.js');
     }
 
-    this.import('vendor/ember-modifier-manager-polyfill.js');
+    if (this.shouldPolyfillCapabilities) {
+      this.import('vendor/ember-modifier-capabilities-polyfill.js');
+    }
   },
 
   treeForVendor(rawVendorTree) {
-    if (!this.shouldPolyfill) {
+    if (!this.shouldPolyfillManager && !this.shouldPolyfillCapabilities) {
       return;
     }
 
