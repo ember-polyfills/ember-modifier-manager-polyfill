@@ -18,7 +18,7 @@ jobs:
     - name: install yarn
       run: npm install -g yarn
     - name: install dependencies
-      run: yarn install
+      run: yarn install --ignore-engines
     - name: lint:js
       run: yarn lint:js
     - name: lint:hbs
@@ -36,7 +36,7 @@ jobs:
     - name: install yarn
       run: npm install -g yarn
     - name: install dependencies
-      run: yarn install
+      run: yarn install --ignore-engines
     - name: test
       run: yarn test
 
@@ -72,7 +72,7 @@ jobs:
     - name: install yarn
       run: npm install -g yarn
     - name: install dependencies
-      run: yarn install
+      run: yarn install --ignore-engines
     - name: test
       env:
         EMBER_TRY_SCENARIO: ${{ matrix.ember-try-scenario }}
