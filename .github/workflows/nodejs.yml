@@ -58,6 +58,7 @@ jobs:
          - ember-3.6
          - ember-3.7
          - ember-lts-3.8
+         - ember-lts-3.12
          - ember-release
          - ember-beta
          - ember-canary
