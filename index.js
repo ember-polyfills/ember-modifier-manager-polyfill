@@ -28,7 +28,7 @@ module.exports = {
   },
 
   treeForVendor(rawVendorTree) {
-    if (!this.shouldPolyfillManager) {
+    if (!this.shouldPolyfillManager && !this.shouldPolyfillCapabilities) {
       return;
     }
 
