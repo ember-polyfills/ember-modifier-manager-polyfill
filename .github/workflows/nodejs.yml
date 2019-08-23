@@ -6,6 +6,24 @@ on:
   - cron:  '0 6 * * 0' # weekly, on sundays
 
 jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - name: install yarn
+      run: npm install -g yarn
+    - name: install dependencies
+      run: yarn install
+    - name: lint:js
+      run: yarn lint:js
+    - name: lint:hbs
+      run: yarn lint:hbs
+
   test:
     name: Tests
     runs-on: ${{ matrix.os }}
@@ -23,8 +41,6 @@ jobs:
       run: npm install -g yarn
     - name: install dependencies
       run: yarn install
-    - name: lint
-      run: yarn lint:js
     - name: test
       run: yarn test
 
