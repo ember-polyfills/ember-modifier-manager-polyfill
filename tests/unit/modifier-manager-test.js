@@ -17,12 +17,4 @@ module('Unit | Modifier Manager', function() {
       'typoed name matches "real" name'
     );
   });
-
-  test('sets up alias for typoed `Ember._modifierManagerCapabilties`', function(assert) {
-    assert.strictEqual(
-      Ember._modifierManagerCapabilties,
-      Ember._modifierManagerCapabilities,
-      'typoed name matches "real" name'
-    );
-  });
 });
