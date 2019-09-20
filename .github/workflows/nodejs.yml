@@ -1,7 +1,13 @@
 name: CI
 
 on:
-  push: {}
+  push:
+    branches:
+      - master
+      - 'v*' # older version branches
+    tags:
+      - '*'
+  pull_request: {}
   schedule:
   - cron:  '0 6 * * 0' # weekly, on sundays
 
