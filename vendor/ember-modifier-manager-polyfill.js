@@ -22,7 +22,13 @@ import { deprecate } from '@ember/debug';
         return MODIFIER_MANAGERS.get(pointer);
       }
 
-      pointer = getPrototypeOf(pointer);
+      if (gte('3.1.0-beta.1')) {
+        pointer = getPrototypeOf(pointer);
+      } else if (Ember.Object.detect(pointer) && typeof pointer.superclass === 'function') {
+        pointer = pointer.superclass;
+      } else {
+        pointer = getPrototypeOf(pointer);
+      }
     }
 
     return;

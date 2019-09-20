@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
+import EmberObject from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { capabilities, setModifierManager } from '@ember/modifier';
 
@@ -70,6 +71,62 @@ module('Integration | Component | modifier-manager', function(hooks) {
           destroyModifier() {},
         }),
         MyModifier
+      );
+
+      await render(hbs`<div {{my-modifier}}></div>`);
+    });
+
+    test('it can find the manager set on a native super-class', async function(assert) {
+      assert.expect(1);
+
+      class BaseModifier {}
+      class MyModifier extends BaseModifier {}
+
+      this.owner.register('modifier:my-modifier', MyModifier);
+
+      setModifierManager(
+        () => ({
+          capabilities: capabilities('3.13'),
+          createModifier(factory) {
+            assert.equal(factory.class, MyModifier, 'the factory class is Modifier');
+          },
+          installModifier() {},
+          updateModifier() {},
+          destroyModifier() {},
+        }),
+        BaseModifier
+      );
+
+      await render(hbs`<div {{my-modifier}}></div>`);
+    });
+
+    test('it can find the manager set on a EmberObject super-class', async function(assert) {
+      assert.expect(1);
+
+      const BaseModifier = EmberObject.extend({});
+      const MyModifier = BaseModifier.extend({
+        init() {
+          this._super(...arguments);
+          this.isMyModifier = true;
+        },
+      });
+
+      this.owner.register('modifier:my-modifier', MyModifier);
+
+      setModifierManager(
+        () => ({
+          capabilities: capabilities('3.13'),
+          createModifier(factory) {
+            // On Ember 2.12, factory.class is the "injections subclass", not MyModifier.
+            // This is probably a better way to test for the thing we care about anyway.
+            let instance = factory.create();
+            assert.strictEqual(instance.isMyModifier, true, 'the factory class is Modifier');
+          },
+          installModifier() {},
+          updateModifier() {},
+          destroyModifier() {},
+        }),
+        BaseModifier
       );
 
       await render(hbs`<div {{my-modifier}}></div>`);
