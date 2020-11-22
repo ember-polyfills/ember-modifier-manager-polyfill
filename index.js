@@ -9,7 +9,7 @@ module.exports = {
     this._super.init && this._super.init.apply(this, arguments);
 
     let checker = new VersionChecker(this.project);
-    let emberVersion = checker.forEmber();
+    let emberVersion = checker.for('ember-source');
 
     this.shouldPolyfillManager = emberVersion.lt('3.8.0-alpha.1');
     this.shouldPolyfillCapabilities = emberVersion.lt('3.13.0-beta.3');
